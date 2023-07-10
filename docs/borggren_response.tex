@@ -1,0 +1,118 @@
+\documentclass[prc, 12pt]{revtex4-1}
+ \usepackage{amsfonts}
+ \usepackage{epsfig}    
+ \usepackage{graphicx}  
+ \usepackage{subfigure}
+ %\usepackage{lineno}
+ %\linenumbers
+ \begin{document}
+ \topmargin=.05in
+ \title{Epistemology of Decoy Systems; Response to Committee}
+ \author{Nathan Borggren}
+ \affiliation{CompDec}
+ \date{\today}
+
+\begin{abstract}
+A follow up with the remarks of Isthmus and Ack-J
+\end{abstract}
+
+\maketitle{}
+
+\section{Isthmus' Remarks}
+
+Remarks from Isthmus are in italics.
+
+\textit{--- Meta comment: I like many of the aspects of this research and would like to see some aspects clarified and sketched out in a bit more detail. I also think that the EABE attack is one of Monero?s biggest practical attack surfaces currently, and I see value in quantification + real world data-informed best practices.}
+
+NB --- I will try to clarify, but most clarity and details will emerge as the research is performed.  I'm grateful for the Monero community to have reached out and explained these issues and attacks with me.  
+
+\textit{The frequentist angle has been well explored [citation: OSPEAD] and I think that a Bayesian approach would be a nice complementary study. TDA is very powerful, and using the lens of persistent homology to identify features in the transaction tree seems appropriate. (My first thought when I read the proposal is that this is quite a clever application).}
+
+NB --- Thanks, I too think the Bayesian approach and TDA will provide a nice complement to what has been done.  I also think a good paper can bring some of the graph and TDA communities to Monero/Blockchains in general as a ripe grounds to explore their abstractions with large, but still tractable problems.
+
+\textit{`merchant who has received payment from two different stealth addresses' I don't understand what this means}
+
+NB --- I am referring to the situation where a merchant has received two payments, and courtesy their privilege, knows these are coming from a unique user despite the apparent different addresses on the blockchain.  I am using the wordage used on xmrchain.net, I could simply say 'outputs' too.
+
+\textit{Comment: for localized attacks like EABE, they kind of scale like O(N) for number of attacker-involved cycles but roughly O(1) for overall blockchain size, since the analysis is mostly local not global. Furthermore there is only a tiny slice of time that needs to be evaluated, between the $E->A$ leg and the $B->E$ leg. This helps attackers and researchers.}
+
+NB --- Thanks for the remark; it is this interaction between local and global scales that I find quite interesting with these problems.  I also think the short time windows of these attacks will allow for a thorough analysis to be done without a lot of computational overhead.
+
+\textit{`Motifs can be identified and histogrammed and previous leaks and residue from previous forks can be analyzed to see to what extent the blockchain has already been compromised.' I would like to have a clearer picture of what this entails. A lot of these things like `residues from previous forks' are not super trivial. I know the most recent one was studied, most of the others have probably been lost to the sands of time (no nodes serving the data).}
+
+NB ---  As in the Joslyn papers, these motifs created in a short amount of time from various transaction patterns can be enumerated and seen how often they reappear.  I'm expecting clustering by Wasserstein distance to work, if not a literal repeat in motifs (Wasserstein distance of actually zero), to provide the counts in these histograms.  I think some of the artifacts of the old nodes behavior will still be present (time dependence of these motifs).  I'm hoping the TDA can filter these out.
+
+\textit{Lots of references to `leaked information' This could mean a lot of things. I would love to see an explicit enumeration of candidates, along with an explanation (for each) of where and how the data can be obtained. Ideally a link to the data source if it exists, or a plan to acquire it if it doesn?t.}
+
+NB --- The leaked information I'm referring to is specifically that which can be gained from private wallets, on either the sender or the receiver front.  The setup is abstracted so that I can link by decree any transactions/addresses that I want, and look at the topological implications.  The data sources will be wallet transactions we generate or are donated for this purpose.
+
+\textit{I am strongly biased towards analysis of the REAL mainnet chain data, which is inherently representative of Monero?s actual users. (This is reflected as a main theme throughout my research). While it is good that some private / testnet synthetic data has been generated and studied, I believe that for research of this nature (empirical studies to inform behavior recommendation for real users on the real chain) it would be much more appropriate to analyze data embedded in the real transaction tree.}
+
+NB --- I am happy to pivot the discussion from the testnet to the mainnet as it seems this is of more interest.  I'll be sure to check methodology so as to be sure to be only a small number of the transactions present in any given set of blocks.
+
+\textit{Here is one potential methodology that I think could be very valuable in terms of providing actionable data informed recommendations to improve practical user safety:}
+
+\textit{-- Carry out EABE attacks on mainnet with one cluster of wallets}
+\textit{-- Try to heuristically identify the EABE circuits with a completely isolated TDA-based chainanalysis suite whose ONLY inputs are (A) public blockchain data, (B) ?eve? wallet transaction records.}
+\textit{The research would have two phases:}
+\textit{(1) building the TDA chainanalysis suite that successfully heuristically deanonymizes EABE circuits, starting with trivial or ?softball? patterns that should be easy to detect, and
+(2) identifying churn patterns that spoil the statistical power of the analysis.}
+
+NB --- (1) is largely the idea here and in my previous work.  The previous used more supervised Machine Learning approaches, but I think TDA has some capabilities to do this in an unsupervised manner.  (2) Is pushing this one step further and I hope we can address that here.
+
+\textit{Assuming that the author has at most a handful of wallets transacting and is not doing any flood-style attacks, I don?t see any ethical concerns about in situ experiments on mainnet. It would be unlikely to make a meaningful impact on block size. It would be unlikely to make a meaningful impact on the fee market. It would be unlikely to impact time for other transactions to be mined. I don?t think it would have any negative effect on network operation or degrade the experience of other users. For completeness I?ll note that release of the data would probably remove 1 effective decoy from a very small fraction of transactions, which does not strike me as horrendously problematic.}
+
+NB --- My worries of contaminating the blockchain with my own analysis will stay in mind throughout and I'll seek approval/participation with particulars of any experimental protocol I go forward with.  
+
+\section{Ack-J Remarks}
+
+Ack-J in italics now.
+
+\textit{- Borggren has previously released fascinating papers quantifying monero privacy pitfalls and I'm excited he is looking to continue :)}
+
+NB --- Thanks for your continuous interest and follow up work.  I'd be glad to be back.
+
+\textit{- Will the ?other related information leaks? stated in the introduction be tested? Or will the work focus solely on the first set of bullet points?}
+
+NB --- The main focus will be on the first set of bullets, but I'm expecting the formalism to apply more generally.  I also think that the differences between some of these situations is cosmetic/semantic and can be readily addressed by myself or others following the work.  I'll be prioritizing the Overseer attack as it seems to be the most likely vulnerability to be exploited.
+
+\textit{- I?d like to know how does the graph analysis scale? From a computation cost and probability with updated 16 rings. I?d like to see the theories tested (or simulated) on mainnet since there are many more tx/day (~25,000) compared to a test chain which should meaningfully change results. As of right now the entire monero blockchain can fit in the ram of a consumer PC (~160GB)}
+
+NB --- Scaling for TDA depends on the dimension of the embedding space, but will likely be 1 or 2 in this case.  The rule of thumb is $Order(N log N)$ in the number of vertices+edges to compute the persistent homology.  As Isthmus points out, these are local attacks, so I'm expecting these calculations to be tractable, even without the whole blockchain in ram.  I'm expecting the patterns to be similar regardless of testnet, mainnet, or simulated, they simply occur more infrequently on the mainnet (hopefully).
+
+\textit{- Most previous research (my own included) only focus on a passive adversary observing public chain data. With how fast chain analytic companies are growing and being relied on for regulatory compilation, a more realistic scenario is that eliptic/chainalysis will use active attacks and/or have insights into full transaction histories of compliant merchant wallets (or simply through a subpoena)}
+
+NB --- Chainalysis currently denies doing this, would be illegal for the US gov't to do, and I'm inclined to believe they are not doing this at the moment.  I don't know about Elliptic/TRM but I have heard of other, less scrupulous actors, running nodes to milk for information.  The flashlight attack is of this varietal, and will be explored.  It is my hope that we can protect against would-be attackers as well as anyone actually attacking.  I think a demonstration that these attempts lead to a large number of false positives (if that ends up being the case) could compel people away from doing these attacks themselves. 
+
+\textit{- I?d like to see how a coinbase output and p2pool output elimination heuristic used could aid the analysis}
+
+NB --- I'm expecting that the formalism developed will be able to address some things routinely.  I will be sharing my methodologies so the community can design their own experiments, but I expect this issue to come up when best practices get developed. 
+
+\textit{- Perhaps reach out to neptune and use \url{https://github.com/neptuneresearch/ring-membership-sql} for empirical results querying the monero blockchain. I found this extremely helpful for my feature extraction. Here is a link to some example code I wrote to query all previous inclusions of a decoy in other rings \url{https://github.com/ACK-J/Monero-Dataset-Pipeline/blob/c7deececab4a9247bdd74ff3a046ef3875ba37c4/create_dataset.py#L166}}
+
+\textit{- To potentially save time from collecting your own testnet dataset consider seeing if the ones I published would suffice (its pretty extensive). It may not due to your transaction timing requirements.}
+
+NB --- Thanks I'll have a look, happy to use any previous work.  
+
+\textit{- I think the $~\$100/hour$ quoted is reasonable for the qualifications of the author and the importance of this work for the monero community cant be understated. While I love quick turnovers, I am slightly worried about the short timeline with the breadth of the proposed work (theoretical/computational/empirical) and would advocate for more hours in the proposal (an additional month). Although this may not be necessary due to the author working full time on the research and up to his best judgment.}
+
+NB --- I'd love more hours of course, but that is up to the committee.
+
+\textit{- What are the plans to evaluate churning? I see one reference in the empirical section. Will this evaluate how churning affects the attack accuracies stated in the introduction or will it evaluate if churning creates a fingerprintable transaction graph?}
+
+NB --- The usual ML setup of establishing a matrix of False/True Positives/Negatives will be set up and the detection of the churning strategy compared against random guessing.  I do expect ill-conceived churning attempts to be uncovered by our methodology.
+
+\textit{- If the work is executed as proposed it will answer many of the long-standing questions we have about transaction privacy in Monero.}
+
+NB --- Thanks, I hope to get a chance to explore.
+
+\section{General Response}
+
+It is a generic hope of mine that my knowledge base and tools can be used to improve the Monero blockchain to the satisfaction of the Monero Community.  I am a big fan of TDA and complicated maths, but that is beside the point; I think they will indeed prove to be useful tools in the analysis and can be rendered simple enough to be explainable and useful for non-experts and experts alike.  As I'm largely a mathematician/physicist, not caught up in the weeds of this particular blockchain, I expect that the guidance and suggestions of the community who can navigate the weeds to be invaluable and will be seeking guidance and recommendations throughout.  Thanks for the time in your consideration.
+
+  
+\bibliography{monero}
+\bibliographystyle{unsrtnat}
+
+\end{document}
+
