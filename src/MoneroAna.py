@@ -22,18 +22,13 @@ class block:
             
         self.sources = []
         self.sinks = []
-        
-                
+                        
     def get_txs(self):
         return [tx(i['tx_hash']) for i in self.txs]
-                
-                
+                                
     def __str__(self):
         return str(self.tx_hash)
-    
-    
-                
-        
+           
 class tx:
     def __init__(self, tx_hash):
         r = requests.get("http://127.0.0.1:8081/api/transaction/{}".format(tx_hash))
@@ -51,18 +46,18 @@ class tx:
         self.sinks = []
             
     def get_rings(self):
-        self.rings = [ring(i) for i in self.inputs]
+        self.rings = [ring(i, self.block_height) for i in self.inputs]
 
     def __str__(self):
         return str(self.tx_hash)
         
 class ring:
-    def __init__(self, inputs):
+    def __init__(self, inputs, refheight):
         self.mixins = [i['tx_hash'] for i in inputs['mixins']]
         self.block_no = [i['block_no'] for i in inputs['mixins']]
         self.youngest = self.block_no[-1]
         self.oldest = self.block_no[0]
-        
+        self.refheight = refheight
         #self.sources = []
         self.sinks = []
         #self.tx_hash = tx_hash
@@ -102,7 +97,9 @@ def get_random_paths(txo):
         txo = tx(random.choice(random.choice(txo.rings).mixins))
         yield txo
         
-def taint(txo, display=100, depth=1000000, maxtx = 5000000):
+def taint(txo, display=100, depth=1000000, maxtx = 5000000, refheight = None):
+    if refheight == None:
+        refheight = txo.block_height
     current = 0
     coinbases = []
     if txo.coinbase == True:
@@ -114,19 +111,22 @@ def taint(txo, display=100, depth=1000000, maxtx = 5000000):
     yield l, coinbases
     
     cnt = 0
+    #n = len(coinbases)
     loop = 0
     l2 = []
     while len(l)>0 and cnt<maxtx:
         loop+=1
         print("loop", loop)
         l1 = []
+        newcoinbase = 0
         for k in l:
             for j in k.rings:
                 for h,i in zip(j.block_no,j.mixins):
-                    if txo.block_height-h<depth:
+                    if np.abs(refheight-h)<depth:
                         txnew = tx(i)
                         if txnew.coinbase==True:
                             coinbases.append(txnew.block_height)
+                            newcoinbase+=1
                         else:
                             l1.append(txnew)
                             cnt+=1
@@ -134,13 +134,18 @@ def taint(txo, display=100, depth=1000000, maxtx = 5000000):
                                 print(cnt)
                     else:
                         l2.append(i)
-        yield l1, coinbases
+        yield l1, coinbases[-newcoinbase:]
+        
         l = l1
     yield l2
         
         
-def taint_ring(ring, depth=1000000, maxtx=5000000):
-    ttrees_ring = [taint(i, depth=depth) for i in ring.get_txs()]
+def taint_ring(ring, depth=1000000, maxtx=5000000,refheight=None):
+    if refheight==None:
+        refheight = ring.block_height
+    
+    ttrees_ring = [taint(i, refheight=refheight, depth=depth) for i in ring.get_txs()]
+    print(len(ttrees_ring))
     
     while 1>0:
         yield [[j for j in i] for i in ttrees_ring]
@@ -163,8 +168,29 @@ def cotxs(ttree1, ttree2):
     
     txs_hashes = [i.tx_hash for i in txs]
     txs2_hashes = [i.tx_hash for i in txs2]
+    print(len(txs_hashes), len(txs2_hashes))
     
-    return [i for i in set(txs_hashes) if i in txs2_hashes], [i for i in set(cbs) if i in cbs2], [i for i in l21 if i in l22]
+    return [i for i in set(txs_hashes) if i in txs2_hashes], [i for i in set(cbs) if i in cbs2] #, [i for i in l21 if i in l22]
+
+def list_intersection(list1, list2):
     
+    list1, list2 = sorted(list1), sorted(list2)
+    n1, n2 = len(list1), len(list2)
+    intersection = []
+    i = 0
+    j = 0
+    
+    while i < n1 and j < n2:
+        if list1[i]==list2[j]:
+            intersection.append(list1[i])
+            i+=1
+            j+=1
+        elif list1[i] < list2[j]:
+            i +=1
+        else:
+            j+=1
+            
+    return set(intersection)
+
     
     
