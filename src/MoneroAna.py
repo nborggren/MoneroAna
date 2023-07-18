@@ -7,6 +7,16 @@ import gtda
 import pymc as pm
 import random
 
+class registry:
+    def __init__(self, txs):
+        self.txs = {}
+        for i in txs:
+            self.txs[i.tx_hash] = i
+            
+    def add(self, txs):
+        for i in txs:
+            self.txs[i.tx_hash] = i
+
 class block:
     def __init__(self, block):
         r = requests.get("http://127.0.0.1:8081/api/block/{}".format(block))
@@ -23,55 +33,93 @@ class block:
         self.sources = []
         self.sinks = []
                         
-    def get_txs(self):
-        return [tx(i['tx_hash']) for i in self.txs]
+    def get_txs(self, registry={}):
+        return [tx(i['tx_hash'], registry=registry) for i in self.txs]
                                 
     def __str__(self):
         return str(self.tx_hash)
+    
+    def __lt__(self, other):
+        return self.block_height>other.block_height
            
 class tx:
-    def __init__(self, tx_hash):
-        r = requests.get("http://127.0.0.1:8081/api/transaction/{}".format(tx_hash))
-        data = json.loads(r.text)['data']
-        for k,v in data.items():
-            setattr(self, k, v)
-        #self.tx_hash = tx_hash
-        #self.coinbase = self.data['coinbase']
-        if self.coinbase == False:
-            self.get_rings()
-        #elf.inputs = self.data['inputs']
-            #mixins = [[j for j in i['mixins']] for i in self.dat['data']['inputs']]
-            
-        self.sources = []
-        self.sinks = []
+    def __init__(self, tx_hash, registry={}):
+        if tx_hash in registry:
+            pass
+        else:
+            r = requests.get("http://127.0.0.1:8081/api/transaction/{}".format(tx_hash))        
+            data = json.loads(r.text)['data']
+            for k,v in data.items():
+                setattr(self, k, v)
+            #self.tx_hash = tx_hash
+            #self.coinbase = self.data['coinbase']
+            if self.coinbase == False:
+                self.get_rings()
+            #elf.inputs = self.data['inputs']
+                #mixins = [[j for j in i['mixins']] for i in self.dat['data']['inputs']]
+
+            self.sources = []
+            self.sinks = []
+            registry[tx_hash] = self
             
     def get_rings(self):
-        self.rings = [ring(i, self.block_height) for i in self.inputs]
+        #print(self.block_height)
+        self.rings = [ring(i, self) for i in self.inputs]
+        
+    def taint(self, height, registry={}):
+        #self.taint = {}
+        return [i.get_mixins(max_height=height, registry=registry) for i in self.rings]
 
     def __str__(self):
         return str(self.tx_hash)
+    
+    def __lt__(self, other):
+        return self.block_height > other.block_height
         
 class ring:
-    def __init__(self, inputs, refheight):
+    def __init__(self, inputs, txo):
         self.mixins = [i['tx_hash'] for i in inputs['mixins']]
         self.block_no = [i['block_no'] for i in inputs['mixins']]
         self.youngest = self.block_no[-1]
         self.oldest = self.block_no[0]
-        self.refheight = refheight
+        self.txo = txo
+        self.refheight = txo.block_height
         #self.sources = []
         self.sinks = []
         #self.tx_hash = tx_hash
         #self.coinbase = self.dat['data']['coinbase']
         
-    def get_mixins(self):
-        return [tx(i) for i in self.mixins]
+    def get_mixins(self, registry={}, max_height = -1):
+        mixins = []
+        for i,j in zip(self.block_no,self.mixins):
+            if i < max_height:
+                continue
+            else:
+                #self.txo.sinks.append(j)
+                if j in registry:
+                    registry[j].sources.append(i)
+                    mixins.append(registry[j])
+                else:
+                    registry[j] = tx(j, registry=registry)
+           
+                    registry[j].sources.append(j)
+                    mixins.append(registry[j])
+        
+        return mixins
     
     def get_distribution(self):
         n = len(self.mixins)
         self.probabilities = pymc.Categorical([1/n for i in range(n)])
-        
-    def get_txs(self):
-        return [tx(i) for i in self.mixins]
+
+    def __str__(self):
+        return str(self.mixins)
+    
+    def __iter__(self):
+        for i,j in zip(self.block_no[::-1], self.mixins[::-1]):
+            yield i, tx(j)
+                       
+    def __lt__(self, other):
+        return self.youngest > other.youngest
     
 
 def get_oldest_path(txo):
@@ -91,7 +139,7 @@ def get_youngest_path(txo):
         txo = tx(txo.rings[idx].mixins[-1])
         yield txo
 
-def get_random_paths(txo):
+def get_random_path(txo):
     
     while txo.coinbase==False:
         txo = tx(random.choice(random.choice(txo.rings).mixins))
@@ -102,6 +150,8 @@ def taint(txo, display=100, depth=1000000, maxtx = 5000000, refheight = None):
         refheight = txo.block_height
     current = 0
     coinbases = []
+    seen = {}
+    seen[txo.tx_hash] = [txo]
     if txo.coinbase == True:
         coinbases.append(txo.block_height)
         l = []
@@ -122,7 +172,7 @@ def taint(txo, display=100, depth=1000000, maxtx = 5000000, refheight = None):
         for k in l:
             for j in k.rings:
                 for h,i in zip(j.block_no,j.mixins):
-                    if np.abs(refheight-h)<depth:
+                    if np.abs(refheight-h)<depth and i not in seen.keys():
                         txnew = tx(i)
                         if txnew.coinbase==True:
                             coinbases.append(txnew.block_height)
