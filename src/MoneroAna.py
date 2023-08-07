@@ -97,12 +97,12 @@ class ring:
             else:
                 #self.txo.sinks.append(j)
                 if j in registry:
-                    registry[j].sources.append(i)
+                    registry[j].sources.append(self.txo.tx_hash)
                     mixins.append(registry[j])
                 else:
                     registry[j] = tx(j, registry=registry)
            
-                    registry[j].sources.append(j)
+                    registry[j].sources.append(self.txo.tx_hash)
                     mixins.append(registry[j])
         
         return mixins
