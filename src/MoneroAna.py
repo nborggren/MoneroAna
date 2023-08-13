@@ -4,8 +4,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import ot
 import gtda
+from gtda import homology
 import pymc as pm
 import random
+
+VR = homology.VietorisRipsPersistence(homology_dimensions=[0])
 
 class registry:
     def __init__(self, txs):
@@ -16,7 +19,7 @@ class registry:
     def add(self, txs):
         for i in txs:
             self.txs[i.tx_hash] = i
-
+            
 class block:
     def __init__(self, block):
         r = requests.get("http://127.0.0.1:8081/api/block/{}".format(block))
@@ -45,7 +48,7 @@ class block:
 class tx:
     def __init__(self, tx_hash, registry={}):
         if tx_hash in registry:
-            pass
+            self = registry[tx_hash]
         else:
             r = requests.get("http://127.0.0.1:8081/api/transaction/{}".format(tx_hash))        
             data = json.loads(r.text)['data']
@@ -80,19 +83,24 @@ class ring:
     def __init__(self, inputs, txo):
         self.mixins = [i['tx_hash'] for i in inputs['mixins']]
         self.block_no = [i['block_no'] for i in inputs['mixins']]
+        self.public_key = [i['public_key'] for i in inputs['mixins']]
         self.youngest = self.block_no[-1]
         self.oldest = self.block_no[0]
         self.txo = txo
-        self.refheight = txo.block_height
+        self.block_height = txo.block_height
+        self.key_image = inputs['key_image']
         #self.sources = []
         self.sinks = []
+        
+        self.get_pers_diagram()
         #self.tx_hash = tx_hash
         #self.coinbase = self.dat['data']['coinbase']
         
-    def get_mixins(self, registry={}, max_height = -1):
+    def get_mixins(self, registry={}, min_height = -1, max_height = -1):
         mixins = []
         for i,j in zip(self.block_no,self.mixins):
-            if i < max_height:
+            #print(i,j)
+            if i > max_height or i < min_height:
                 continue
             else:
                 #self.txo.sinks.append(j)
@@ -110,6 +118,11 @@ class ring:
     def get_distribution(self):
         n = len(self.mixins)
         self.probabilities = pymc.Categorical([1/n for i in range(n)])
+        
+    def get_pers_diagram(self):
+        pc = np.array(self.block_no).reshape(-1,1)
+        self.pers_diagram = VR.fit_transform([pc])[0]
+        #self.pers_diagram[:,1] = np.log10(self.pers_diagram[:,1])
 
     def __str__(self):
         return str(self.mixins)
@@ -139,12 +152,77 @@ def get_youngest_path(txo):
         txo = tx(txo.rings[idx].mixins[-1])
         yield txo
 
-def get_random_path(txo):
+def get_random_path(txo, registry={}, max_height = -1):
     
-    while txo.coinbase==False:
-        txo = tx(random.choice(random.choice(txo.rings).mixins))
+    mxn = len(txo.inputs)
+    
+    path = []
+    current_hash = txo.tx_hash
+    
+    while txo.coinbase==False and txo.block_height > max_height:
+        idx, r = random.choice(list(enumerate(txo.rings)))
+        idx2, next_hash = random.choice(list(enumerate(r.mixins)))
+        #print(r.public_key[idx2])
+        #print(txo.outputs)
+
+        #path.append((idx, idx2))
+        
+        if next_hash in registry:
+            txo = registry[next_hash]
+        else:
+            txo = tx(next_hash, registry=registry)
+         
+        #print(r.public_key[idx2])
+        #print(txo.outputs)
+        oidx = [i for i,j in enumerate(txo.outputs) if j['public_key']==r.public_key[idx2]][0]
+        #print(idx, idx2, oidx)
+            
+            
+        txo.sources.append(current_hash)       
+        registry[current_hash].sinks.append(next_hash)
+        
+        current_hash = next_hash
+        
+        mxn = txo.mixin*mxn/len(txo.outputs)
+        #print(mxn)
+        
+        path.append((idx, idx2, oidx, txo))
         yield txo
         
+
+        
+    yield path
+    
+def sample_paths(n, txo, registry = {}, max_height = -1):
+    paths = []
+    for i in range(n):
+        if i%1000==0:
+            print(i)
+        tmp = [j for j in get_random_path(txo, registry=registry, max_height = max_height)]
+        paths.append(tmp[-1])
+    return paths
+        
+def get_random_tree(txo, registry={}, max_height = -1):
+    
+    paths = [txo]
+    
+    if txo.coinbase==False and txo.block_height > max_height:
+        for idx,r in enumerate(txo.rings):
+            idx2, next_hash = random.choice(list(enumerate(r.mixins)))
+            #print(idx2)
+
+        
+            if next_hash in registry:
+                child = registry[next_hash]
+            else:
+                child = tx(next_hash, registry=registry)
+            
+            txo.children.append(child)
+
+    return txo.children
+
+
+#exhaustive search struggles
 def taint(txo, display=100, depth=1000000, maxtx = 5000000, refheight = None):
     if refheight == None:
         refheight = txo.block_height

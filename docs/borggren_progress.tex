@@ -1,0 +1,52 @@
+\documentclass[prc, 12pt]{revtex4-1}
+ \usepackage{amsfonts}
+ \usepackage{epsfig}    
+ \usepackage{graphicx}  
+ \graphicspath{ {./images/} }
+ \usepackage{xcolor}
+ \usepackage{subfigure}
+ \usepackage{lineno}
+ \usepackage{rotating}
+ \linenumbers
+ 
+\usepackage{glossaries}
+
+\input{snippets/glossary.tex}
+\makenoidxglossaries
+
+ \begin{document}
+ \topmargin=.05in
+ 
+ \title{Report Update June 2023; Epistemology of Decoy Systems; Probing the Attacks on the Privacy of the Monero Blockchain}
+ \author{Nathan Borggren}
+ \affiliation{CompDec}
+ \date{\today}
+
+\begin{abstract}
+
+\end{abstract}
+
+\maketitle{}
+
+\tableofcontents
+
+\section{Introduction}
+
+Check \gls{EAE} and \gls{TDA} \gls{rct}
+
+\input{snippets/fits.tex}
+
+\input{snippets/RingTDA.tex}
+
+\input{snippets/software.tex}
+
+  
+\printnoidxglossaries  
+
+\bibliography{monero}
+\bibliographystyle{unsrtnat}
+
+
+
+\end{document}
+

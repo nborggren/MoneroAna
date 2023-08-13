@@ -1,0 +1,22 @@
+\section{MoneroAna}
+
+A git repository containing this documentation and of the python codes generated to produce the figures and results therein has been provided.
+
+\subsection{Basic Classes}  
+
+Basic python classes were created to query and load the data as well as maintain close contact and syntax with the mathematics we will be using.  As this analysis is primarily concerned with churning, EAE attacks, and other scenarios which can be characterized by involving relatively few actors and short time scales, the designs were made with composability and easy access in mind and to be used in a generative sense.  For example $<, >, = , +, *, ^$ are being overwritten so as to extend the functionality and convenience of the objects.  
+
+Other options were presented for the loading and interacting with the data and database or csv approaches might be of more use for more statistical analysis of the entire blockchain.  The use case here is directed towards the user (or attacker) who is trying to understand the history and co-history of a potentially small set of transactions.  The objects have a registry keyword that provides a context, basically a dictionary of what has been looked at already, whose keys are the hash and values are the objects instance in memory.
+
+One can count on an adversary to have access to reasonable time and computing resources and willingness to spend hours, days, and months tracing the history of transactions.  
+
+\subsubsection{Block}
+
+\subsubsection{Tx}
+\gls{tx}
+
+\subsubsection{Ring}
+\gls{rct}
+
+\subsection{Taint Trees, Sampling Paths, and Paths to Coinbase}
+
