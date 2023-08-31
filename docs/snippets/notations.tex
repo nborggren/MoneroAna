@@ -1,0 +1,23 @@
+
+\section{Notations}
+
+\begin{table}[h]
+\begin{tabular}{|c|c|}
+ \multicolumn{2}{c}{\bf{Notations}} \\ \hline
+  $tx$ & transaction identifier (hash)\\
+  $tx_j$ & j-th transaction in set (often a ring) \\
+  $tx_{o,j}$ & transaction output \\
+  $v(tx)$ & transaction value \\
+  $r_j(tx)$ & j-th ring input to tx \\
+  $r_j$ & j-th ring input when particular tx is implied \\
+  $v(r_j(tx)))$ & value of j-th ring input \\ 
+  $ r_j,tx_k;r_l,tx_m;...&path identifier: the kth transaction of the jth ring \\
+       & followed by the mth transaction of the lth ring. \\
+  $\{$ & start of a branching along a path \\
+  $\}$ & end of a branch and return to parent node \\
+  $r_0,\{0;2,5;1,3\}\{1;3,1;2,4\}$ & eg two paths out of the zeroth ring \\
+   & 0th tx of $r_0$ followed by 5th tx of 2nd ring etc. \\
+  \hline
+\end{tabular}
+%\caption{Notation for\ldots}
+\end{table}

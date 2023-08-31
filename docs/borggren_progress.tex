@@ -7,6 +7,7 @@
  \usepackage{subfigure}
  \usepackage{lineno}
  \usepackage{rotating}
+ \usepackage[title]{appendix}
  \linenumbers
  
 \usepackage{glossaries}
@@ -14,10 +15,10 @@
 \input{snippets/glossary.tex}
 \makenoidxglossaries
 
- \begin{document}
+ \begin{document} 
  \topmargin=.05in
  
- \title{Report Update June 2023; Epistemology of Decoy Systems; Probing the Attacks on the Privacy of the Monero Blockchain}
+ \title{Report Update July-August 2023; Epistemology of Decoy Systems; Probing the Attacks on the Privacy of the Monero Blockchain}
  \author{Nathan Borggren}
  \affiliation{CompDec}
  \date{\today}
@@ -30,17 +31,25 @@
 
 \tableofcontents
 
-\section{Introduction}
+\input{snippets/introduction}
+
+\input{snippets/value}
 
 Check \gls{EAE} and \gls{TDA} \gls{rct}
 
 \input{snippets/fits.tex}
 
-\input{snippets/RingTDA.tex}
+\input{snippets/RingTDA}
+
+\input{snippets/probTDA}
+
+\input{snippets/EAE}
 
 \input{snippets/software.tex}
 
-  
+\input{snippets/notations.tex}
+
+
 \printnoidxglossaries  
 
 \bibliography{monero}

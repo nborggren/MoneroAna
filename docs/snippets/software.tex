@@ -4,19 +4,63 @@ A git repository containing this documentation and of the python codes generated
 
 \subsection{Basic Classes}  
 
-Basic python classes were created to query and load the data as well as maintain close contact and syntax with the mathematics we will be using.  As this analysis is primarily concerned with churning, EAE attacks, and other scenarios which can be characterized by involving relatively few actors and short time scales, the designs were made with composability and easy access in mind and to be used in a generative sense.  For example $<, >, = , +, *, ^$ are being overwritten so as to extend the functionality and convenience of the objects.  
+Basic python classes were created to query and load the data as well as maintain close contact and syntax with the mathematics we will be using.  As this analysis is primarily concerned with churning, EAE attacks, and other scenarios which can be characterized by involving relatively few actors and short time scales, the designs were made with composability and easy access in mind and to be used in a generative sense.  For example $<, >, = , +, *$ are being overwritten so as to extend the functionality and convenience of the objects.  
 
 Other options were presented for the loading and interacting with the data and database or csv approaches might be of more use for more statistical analysis of the entire blockchain.  The use case here is directed towards the user (or attacker) who is trying to understand the history and co-history of a potentially small set of transactions.  The objects have a registry keyword that provides a context, basically a dictionary of what has been looked at already, whose keys are the hash and values are the objects instance in memory.
 
 One can count on an adversary to have access to reasonable time and computing resources and willingness to spend hours, days, and months tracing the history of transactions.  
+We therefore aim that any outcome of such a query results in maximal confusion with the maximal number of transactions.
+
+It was a design choice, since the focus of this work is the local behavior in n-AE analysis, to keep a registry of every transaction visited over the course of a taint-tree exploration.  
+This registry is a python dictionary with keys the hash of the tx, and the value a pointer to the instance of the Tx object described here.
+The tx objects maintains a list of inputs and outputs and appends to them as the tx arises in other contexts.  
+The persistent homology by probability is implemented by providing a distance matrix directly and is the focus of the research.
+From these registries the relevant distances can be computed and the homology may commence.
+
+10000 blocks is around two weeks of blockchain and all transactions therein held simultaneously in memory was manageable with a common laptop.
+When an instance of Block or Tx are created, a single query is made to an explorer and populated with the information therein.  
+Maintaining the registry prevents the need for repeated calls to the api.
 
 \subsubsection{Block}
 
+The block object is instantiated given a block height.
+\begin{itemize}
+\item called with block height
+\item txs attribute provides list of tx hashes for the block
+\item $get\_txs$ attribute is a function that instantiates the Tx class for all the txs.
+\item obeys arithmetic properties using the block height as an integer.  (in dev) 
+\end{itemize}
+
 \subsubsection{Tx}
+
+\begin{itemize}
+\item instantiated with a call to the tx hash
+\item possesses attributes with the same names as the explorer api
+\item has a list of sources and a list of sinks maintaining a history of contexts the tx has arisen in
+\item $get\_rings$ instantiates ring objects for each ring input of the transaction.
+\item taint an iterator over the rings and mixins (in dev)
+\item value attribute, usually zero for non-coinbase transactions to be replaced with (pymc) random variable discussed in text.  (in dev)
+\item required for taint tree sampling path computations
+\end{itemize}
 \gls{tx}
 
 \subsubsection{Ring}
+
+A ring instance is called with a dictionary of inputs and a tx to serve as the parent node.
+Usually these are rings that have actually occurred on the blockchain, but we can do more.
+We can take the same ring of inputs and attach it to a different parent transaction, 
+
+\begin{itemize}
+\item called with a collection of tx inputs and a txo, providing a parent node
+\item txs attribute provides list of tx hashes for the block
+\item $get\_txs$ attribute is a function that instantiates the Tx class for all the txs.
+\item obeys arithmetic properties using the block height of parent node as an integer.  (in dev) 
+\end{itemize}
 \gls{rct}
 
 \subsection{Taint Trees, Sampling Paths, and Paths to Coinbase}
+
+Various functions have been created to enumerate and annotate the taint trees, sample paths up to a certain height, and create a bar code from the paths to coinbase as described in the text.
+The functions and documentation are in development.
+
 

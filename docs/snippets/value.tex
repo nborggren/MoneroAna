@@ -1,0 +1,99 @@
+\subsection{Value in the Monero Network}
+
+It is generally the case that tracers, like most folks, are more interested in large transactions than small ones.  
+Although transaction values are obfuscated on the Monero blockchain there may be ways to recover some bounds.
+A few thoughts have occurred towards this end that I'll briefly discuss.  One such avenue has quantitatively been explored.
+
+\subsubsection{Value through Optimal Transport}
+If you replace the word `sand' with `cons' and `holes' with `wallets' in \cite{villani2009optimal} the rest follows.  
+The classic picture in optimal transport is a pile of sand distributed over one region X, is moved into a distribution of sand over region Y.  
+It takes some effort to move the sand from $x \in X$ to $y \in Y$, quantified by some cost c(x,y).  
+A `Plan' is some strategy, a probability measure in the product space, $\pi \in P(X,Y)$.  This plan specifies exactly which sand in X goes to which hole in Y.
+Optimal transport then seeks to find the optimal plan; the one which minimizes the cost to execute.
+
+For our situation with Monero, we need the relaxed, Kantorovich formulation (as opposed to the Monge formulation) since the coins can and generally are split.
+
+Specifically, let X be the set of all coinbase transactions and let Y be the set of all utxos.  
+Usually we would normalize to unit mass, though here it could be more natural to normalize to coins in circulation.
+The constraining equation $\int_Y d\pi(x,y) = d\mu(x)$ would simply be the coinbase value of the x transaction, read directly off of the blockchain.
+The equation is a fancy way of saying \textit{The coinbase coins are now somewhere}.
+The complementary equation  $\int_X d\pi(x,y) = d\nu(y)$ would then be the value corresponding to output y.  
+It is a fancy way of saying \textit{the coins in this output came from somewhere}.
+
+A countable set of comparable equations can be created, constraining the number of plans we need to optimize over, by noticing this equation has to hold regardless of what time we look for utxos. 
+For any block height we can consider the utxos as of that block height.
+
+The cost used to evaluate a plan could be the probability, as measured by inverting the measured cdfs, to move from coinbase to the utxo.
+Some of these costs are infinite, indeed all costs outside of the taint tree for a transaction would be infinite.
+They have the interpretation that no coins from transaction y, could have come from transaction x.  
+Similar infinite values will occur when we look at TDA through the filtration probability.  
+Again it means that there is no transaction history present that can link the two transactions.
+
+We do not explore this approach more at this stage, but we note that the sampling methods we develop are indeed sampling these types of plans.
+
+\subsubsection{Value through Derivative Pricing}
+
+In a `risk neutral' framework the price of a derivative is simply the expectation value, the sum over all paths from present time to the expiry of the derivative, with each path weighted by the payout of that path times the likelihood of that path occurring\cite{wilmott2007paul}.   
+Whereas it is the uncertainty of the future that sets the price of a stock derivative, it is the uncertainty of the past that sets the price of Monero in this analogy.  
+This is to motivate the use of a stochastic variable in the place of the unknown value.  
+We describe a preliminary approach to sampling this distribution, which will also relate to the distribution of the number of possible path histories for a given transaction.  
+
+Let us define a notion for `implied paths,' a stochastic variable,  for a given path to a coinbase sample.  Notice these paths are also sampling the space described in the previous Optimal Transport section.
+
+\begin{equation}
+\#Implied\, Paths = \prod_{j=1}^{Max\, Depth} \frac{\# rings_j*\#mixins_j}{\#outputs_j}
+\end{equation}
+
+Application of this equation and more discussion are included in the software section.
+A coupled set of equations is also used to describe value through these random variables.
+
+\begin{equation}
+tx\, value = \sum_{j=1}^{rings}ring\, value(j)
+\end{equation}
+
+\begin{equation}
+ring\, value = \sum_{j=1}^{decoys}tx\, value(j)*P(j)
+\end{equation}
+
+Where $P(j)$ is the probability the jth transaction is the real transaction of the ring.  
+Without additional knowledge this number is simply, $\frac{1}{\#\, decoys}$.
+As information is revealed, these probabilities could change, and even collapse to zero or 1.
+
+The implied value of a tx from a single sample is simply $\#rings * coinbase\, value $
+
+Although these formula only supply a stochastic look at the value of a given transaction, and thus do not achieve the deterministic goal we have for an EAE analysis, it is a belief of this author that these random variables when studied in bulk, can lead to some interesting measurements about the macroeconomics of Monero while maintaining privacy at the microeconomic level, which would be an achievement for the Monero developers. 
+Also, as more gets known about the network, these distributions may end up getting tighter and tighter around particular values. 
+Examples of such macroeconomic variables might be the effective money multipliers, average holding times, average transaction values, and with some additional assumptions, factorization methods (Principal Component Analysis (PCA) and Non-negative matrix factorization (NMF) the `Mapper' algorithm often associated with (TDA) come to mind) might be able to find `sectors' of the Monero economy.  
+
+
+\subsubsection{Value through Linear Programming}
+
+Despite the vast number of unknown values for unknown transactions there are equally as many constraints on these values\cite{linear}.  
+Furthermore, these constraints are linear.
+
+The first constraint is that the sum of the values of the inputs is equal to the sum of the outputs (for the simplicity of notation we will consider the contribution to the miner's reward as an output.
+
+\begin{equation}
+\sum_{tx_i} v(tx_i) = \sum_{tx_o} v(tx_o)
+\end{equation}
+
+The second constraint in it's most unassuming form is that the transaction value is greater than zero and less than the total number of coins in circulation.
+A much tighter constraint can be pulled from the taint tree. 
+If we trace back the taint tree, every path originates as a coinbase transaction of some value.  
+The upper bound then is merely the sum of all these coinbase values.  
+This value would also be too large, as some paths exclude others yet all are counted, this number will still be much smaller than the total number of coins in circulation.
+Still we have an equation though for the constraint.
+
+\begin{equation}
+0 < v(tx) < \sum_{coinbase_i} v(coinbase_i)
+\end{equation}
+
+We still would need a function to optimize over these constraints, which remains to be discovered, but the impulse is a functional that assigns a likelihood to each configuration of values based on the measured cdfs.  
+As an estimate, pretending we have a hundred transactions in a block, and three million blocks, we are left with an unholy linear programming problem of 300 million unknown variables.
+Unholy, perhaps, but not entirely out of the realm of computational tractability.  
+We'd also have 600 million constraints.
+These constraints are also incredibly sparse and might be deeply parallelizable, and are not dis-similar to Traveling Salesmen type problems an Amazon or Uber has to try to solve.
+
+This framework could also be important in the Overseer context, since an exchange that has collected 1000s to millions of these transaction details, can naturally just adjust the constraints to include the additional information they have gleaned and potentially dramatically simplify the problem.  
+
+

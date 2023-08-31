@@ -1,0 +1,145 @@
+\section{Introduction}
+
+This document serves to report efforts and progress as recipient of a Magic Monero Fund \cite{MMF}.  As such it does not aim to be a completed scientific work, so much as to be a starting point for discussion, collaboration, future effort and a source of mathematical definitions for issues raised in \cite{MiersZcash} and \cite{breakingChurn}.
+
+In summary these issues correspond to information one party can glean about their counter-party through repeated transactions.  
+The term \textit{EAE Attack} or \textit{Overseer attack} have been used.  EAE stands for Eve-Alice-Eve, with the role of Eve usually being played by a government or an exchange.  
+We would prefer to omit the words `attack' and `adversary' in favor of `analysis' and `counterparty' to adopt a more non-partisan stance.  
+Eve is only acting in accordance with optimal play in a game theoretical sense, making due with all information available to her.  Were this information gained by illicit acts, then `attack' might be more instructive, but the information spoken of, connections and transaction values, can largely be gained through ordinary transactions. 
+It is a point of confusion, at least for me, when the ends of a transaction are referred to by their moral proclivities rather than their name.
+In the intelligence community, `attack' may refer to the attempt of money laundering where in the privacy oriented community `attack' refers to the attempt of tracing the flow of funds.  
+My concern here is with the actual fungibility of Monero, and am concerned with senders and receivers not attackers and victims.
+Through the inventions of tor (US Navy) and the establishment of security standards (NSA), we can see the sometimes bogey-men are also equally active and encouraging in developing protocols for privacy.
+
+\subsection{Global vs Local}
+
+A juxtaposition of scales occurs naturally in the Monero blockchain. 
+Connections can occur locally, for example through direct interaction with a counter-party, or global, from the spending of coins minted as some particular block.
+Mesoscales, neither local or global are also created courtesy connections to decoys that occurred at intermediate scales.
+Scales in value as well as time occur, though this information is generally hidden it can be collected over time by actors that interact with numerous parties through numerous transactions.
+
+Recovering hidden values or assigning hidden values is a typical task in quantitative finance.  
+From evaluating the prices of IPOs to derivatives on stocks or other assets, or even more abstract notions like risk and liquidity, determining hidden values or getting bounds on hidden values is common place.  
+In the \textit{Value in the Monero Network} section some global approaches to determining value are discussed, one of them quantitatively.  
+The EAE attack is generally local, even if the repeated transactions are over 6 months to a year, this still represents a small fraction of the total blockchain.  
+Furthermore, not all transactions need to be explored, only a fraction of the total transactions will be present in a given taint tree.
+However, the information leaks of value are local, and the information propagate outwards constrains the expectation of value in other transactions.
+In \cite{Borggren2020} it was estimated that at the time $10-15\%$ of transactions involved ShapeShift as a counter-party.
+Thus ShapeShift or anyone substantially observant of the API for that time period has substantial information about the values of transactions.
+
+The analysis for these global characteristics tends to be more computationally intense, but can be more straightforward to express mathematically.
+The attacks of interest in this study are more of the local varietal.
+A typical motif we'd analyze might be just a few transactions occurring over just minutes, hours, or days.
+A common and simple scenario is a small transaction, intended to verify receipt at an address, followed by the intended substantial transaction.
+We call this scenario the $2-AE$ motif and it already has the potential to leak some transaction history of the sender.
+Privacy-focused users may want to skip this verification step.
+
+The information gained by an exchange, that is \textit{E} or receiver in a $2-AE$ analysis is that the receiver can assume the sender has signing capabilities of the two transactions.
+They can also garnish which output belongs to the sender and follow it forward through successive transactions.
+E can then check for intersections between the ring constituents, looking for overlap of previous transactions.
+Efforts have begun to detect and quantify these overlaps, which do indeed occur; common histories can indeed be found. 
+What remains to be shown is that any two transactions would also have these common histories generated through the decoy selection methods.
+It is interesting that the lack of asymptotic statistics, that each block has 10s to 100s of transactions rather than 1000s to 10000s, is actually helping matters, since it increases the likelihood these spurious connections, common histories that are not real common histories, do actually occur.
+We do also find overlap of taint trees of these random pairs of transactions, and are investigating further wether or not these share sufficient statistics to obfuscate real EAE patterns.
+In the \textit{EAE experimental design section we set out on experiments to quantify this issue more succinctly.}
+
+\subsection{Statistical Attacks vs Deterministic Attacks}
+What we can gather about the tracing capabilities purported by Chainalysis and others on the Monero blockchain are of the statistical varietal.  
+We speculate as to how these analysis may proceed and what disbelief must be suspended to believe these analysis.  
+Almost surely no judge on our great planet will sit through an \textit{almost surely} proof that there exists some possibility that the proposed transaction chain actually occurred and wait for this burden of proof to present itself.
+Warrants can be issued and subpoenas made on relatively sparse information.
+Property can be seized long before or entirely without a court decreeing to do so.
+We can imagine a range of responses along the Draconian spectrum ranging from tolerance to outright ban of Monero.  
+On the laissez-faire end, law enforcement would rely entirely on the time stamps, the indelible truth of a transaction on Monero, and have to pull the thread of the actual humans/weapons/drugs being trafficked rather than the flow of cryptocurrency.  
+Next would be guilt-by-association, which is similar to the logic of KYC laws already established.
+Herein interacting with scoundrels is tantamount to being a scoundrel oneself.
+Next would be guilt-by-bad-luck, where a party is considered a scoundrel by sharing a ring with a scoundrel.
+Finally, just guilt, you use Monero, ergo you are trying to hide your devious methods.
+We imagine, but don't know, that the United States is operating somewhere between guilt-by-association and guilt-by-bad-luck, as in if the probabilities are high enough, the federal jackets will sweep the floor.  
+We can also imagine federal orders to Monero developers/miners that render it a violation of KYC to verify transactions over 10000 USD.  
+
+A retired NYPD officer, once upon a time implicated through spurious connections to the theft of the \textit{Star Ruby} from the American Museum of Natural History confided with me, `My innocence was besides the point.  When all arrows point at you, all arrows are pointing at you.'  
+There is thus the need to insure that the mixing and decoy selections that are occurring on the blockchain have the largest possible anonynimity set possible; rendering each transaction virtually indistinguishable with the other transactions that occurred at the same time.
+
+This indistinguishability property is reminiscent of the early 20th century developments of Statistical Mechanics and ultimately Quantum Mechanics.  
+Boltzmann inserted a $1/n!$ factor by hand to the partition functions in order to be consistent with the laws of thermodynamics.  
+It took the introduction of Quantum Mechanics to explain what this factor was doing; accounting for the indistinguishability of the particles involved.
+No coloring of atoms or molecules was possible, one could never say `it was this $H_2O$ molecule not that one.'  
+All $H_20$ molecules are effectively and actually the same, ie indistinguishable, the history of the trajectory of a molecule washed completely by thermodynamics and quantum mechanics.
+This level of indistinguishability should be a goal of Monero, currently transactions are like a red-dye propagating outwards, tainting it's path as it goes.  
+We expect analogies from heat equations or fluid equations that quantify this mixing to be useful in the future, but we don't go down this pathway at this stage.
+
+In the \textit{Fitting Decoy Distribution} sections we measure some empirical distributions, we can then for any given ring look at all $n-1$ sized subrings to order the ring constituents in order of likelihood.  
+We suspect the algorithms pushed as tracing to be of this varietal, and one merely chooses to believe the order of likelihoods the algorithm suggests, which could be sufficient to sell a product to a government or other Overseer, and issue warrants, regardless of the actual quality of the algorithm.
+
+The EAE attacks are not of this varietal though, the connections an Overseer seeks are deterministic connections, demanding consistency between possible histories until only one true history remains.  
+The random variables we use for transaction values also collapse to their deterministic variables, the counter-parties do indeed know the value of the transactions.
+
+\subsection{Hybrid Attacks}
+
+Hybrid Attacks would involve pursuing EAE determinism through statistical means.  Namely sampling.  
+We explore sampling methods as we were defeated when trying to exhaustively explore all paths.
+These sampling methods at this stage are sampled from uniform distributions, but we are developing the Bayesian update steps to explore the more likely transactions in a ring first.
+We also are developing are sampling methods to be exhaustive, removing paths as they arise so as to not be sampled twice.
+
+
+\subsection{Partial vs Complete Information}
+
+It is a goal for the privacy of Monero to be robust to small leakages of information, it should not matter globally if an exchange knows a few values and connections locally on the chain.
+Even large leaks where mass amounts of transaction information are present, should ideally be of negligible utility of transactions outside of that set.
+
+\subsection{Connectivity in the Monero Network}
+
+I can't speak for all parliaments across all nations and times, but we can suspect some common desires and choices with respect to the tracing of flows of funds across the Monero or any network.  
+The fear from the government perspective is funds from illicit activity changes hands or funds change hands to finance illicit activity, their countermeasures evolved and are known as \gls{AML}  (anti-money laundering).  
+Obligations are placed upon exchanges to \gls{KYC}, "know your customer" to prevent such matters.  
+If a currency comes about that can clear transactions while bypassing these measures it is likely that legal measures will evolve to mitigate or prevent this.  
+This process has begun in many jurisdictions.
+Currencies like this already exist, however, the dollar, the euro, the yuan etc. and this fungibility is generally considered a necessary condition on a Money.  
+
+However, with the advent of cryptocurrencies, opportunist surveillance industries took advantage of the lack of fungibility implicit to most blockchains to trace the flows of funds, so much so that they've come to expect this capability. 
+Similar parallels exist for end-to-end private messaging with government reactions spanning the whole spectrum of tolerance to outright ban.  
+Monero is also experiencing the same range of reactions across the planet.  
+This effort here in no way promotes money laundering, indeed I discourage it.  
+It does, however, seek to make improvements towards removing the historical traceability of cryptocurrencies to push it towards a more cash-like state.
+Just like the onus is on a cash-only bagel store to honestly report their earnings and pay taxes etc accordingly, the onus of a monero-only bagel store is to do the same.  
+Whether or not they do so is not my concern nor the developers of cash, credit, or crypto.  
+
+At the same time I have no moral objection with a person, government, or an exchange to use all information legally available to them to get a clearer picture of the world around them and understand the interactions they are engaged in.
+In the end we have a classic evolutionary Red Queen scenario with all parties sharper as a result.
+
+Pardon the interlude/disclaimer just some heat blowing on my neck.
+
+Monero seeks to hide the sand at the beach, anonymity through obscurity, and does so by adding decoys to inputs to hide the true input.  
+From a traceability perspective the lack of decoys in the outputs is problematic though.  
+From a tracer's perspective every output is important, if it isn't the sender it is the receiver; both parties are of interest.  
+In the case of churning, both parties are even the same, all paths forward are relevant and in some sense equivalent.   
+From either the sender's or the receiver's perspective, the outputs are wholly de-anonymized; both parties know which output is theirs and which isn't.
+This fact is important in the context of the EAE attacks as it allows parties to build up a profile of their counterparty.
+
+Perhaps an equally important issue with the large ratio of decoys/outputs is simply that there is an inefficiency present.  
+More entropy, paths/kbyte on the blockchain, is available with more outputs.
+Let m be the number of decoys and transactions present at the input of a transaction and n be the number of outputs.  
+The number of paths goes as $m*n$ whereas the space on the blockchain goes as $m+n$.  
+For $m+n = C$ for some constant C, the maximum number of paths occurs when the number of inputs is equal (or a difference of one when C is odd).
+For a typical transaction with one ring input with 16 transactions and 2 outputs, C is thus 18, and the number of paths could be 81 rather than 32 for the same byte-cost on the blockchain.
+This could perhaps be implemented by generating multiple stealth addresses for either the sender/the receiver or both and splitting the corresponding outputs between those.  
+This however ignores the issue that all outputs would still be of interest.  
+It could be interesting to either use the additional outputs to pay for mining rewards rather than aggregating the mining rewards into a coinbase transaction or having 0 XMR transactions to ghost addresses.
+This could also have the added entropic benefit of some of the coinbase transactions appearing like any other transaction as the outputs get reused in the future.
+
+In a previous work, correlations among the different rings of a multi-input transaction were shown.   \cite{Borggren2020a}
+This fact was purely statistical in nature, measured through counting, but it is possible that fears related to the EAE attack are already present at the multi-ring level.  
+For example, for each pairwise combination between the two rings, run the taint tree backwards, just as you would investigating two transaction histories in the 2-AE attack. 
+We know that there is an enhancement in counts present when there is similarity between block heights, but it could be the case that not only are they the same height, but coming from the same transactions.  
+That is to say, if the decoys are not effectively mixing then the histories of the \textit{true} pair will overlap more than any other pair.
+Further efforts will explore if this is actually the case and if this statistical correlation can be rendered deterministic by deeper scrutiny of these pairwise taint trees.  
+
+This approach of course is rendered possible by the fact that there is one real transaction present in each ring.  
+If there were rings entirely of decoys, or multiple real outputs in a single ring the correlations could be mitigated.
+Another approach could be to simply aggregate all the txs of all the rings into a single large ring, shuffle, and connect to the same outputs.
+With RingCT at 16, a transaction with two ring inputs has 256 possible pairs, whereas one RingCT of 32, two of which are real would have, 32 choose 2 or 496; nearly doubled.
+The situation is even more dramatic as the number of ring inputs increases.  For the case of three ring inputs we'd have $\frac{(48 choose 3)}{16^3} \approx 4.22$, more than quadrupled the number of possibilities.    
+A bonus benefit comes from a small drop in transaction bytes from the lack of a need of multiple ring hashes.
+
+

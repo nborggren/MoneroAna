@@ -4,7 +4,7 @@ We will be using homology and persistent homology in multiple ways, the implemen
 
 The main idea of TDA is that of \textit{persistence};  a sub-complex of a simplicial complex is constructed by providing a parameter and watching how that sub-complex changes from sub-complexes to the full simplicial complex as the parameter is swept.  In our context, the transactions composing the ring are the vertices, the parameter being swept is the block height, and a vertex is joined with another vertex if its distance is within that height of the vertex.  Persistent Homology uses the Union Find algorithm to find unions.  In \ref{UnionFind} we show which set each transaction in a ring is a member of as the algorithm progresses.  Each vertex begins as the singleton set containing just that vertex
 
-In practice we will simply call \textit{Giotto's} Vietoris-Rips functionality and output a persistence diagram.  Indeed this occurs when the \texit{MoneroAna.tx} object is instantiated.  We expect these block height persistence diagrams to be used in a multitude of ways.  
+In practice we will simply call \textit{Giotto's} Vietoris-Rips functionality and output a persistence diagram.  Indeed this occurs when the \textit{MoneroAna.tx} object is instantiated.  We expect these block height persistence diagrams to be used in a multitude of ways.  
 \begin{itemize}
 \item Unsupervised Machine Learning; the diagrams themselves occupy a metric space and can be used for clustering (bottle neck distances, Wasserstein distances, Frechet mean)
 \item Supervised Machine Learning; the decoy algorithm is implemented at the wallet level, not the protocol level, as such multiple decoy models exist in the wild.  An experiment could be to generate transactions from a variety of wallets and develop a model to predict which wallet a signer of some transaction is using.  In the context of EAE attacks, an exchange can potentially ascertain the external wallet used by a customer.
@@ -15,6 +15,44 @@ In practice we will simply call \textit{Giotto's} Vietoris-Rips functionality an
 
 \subsection{Worked example}
 
+For a given RingCT we'd like to be able to evaluate the likelihood subrings came from a decoy selection algorithm, find similar and comparable rings.  
+We can also develop summary statistics about the nature of these rings and representations appropriate for Machine Learning.   
+
+\begin{figure}[h]
+\includegraphics[scale=0.5]{block_height}
+\caption{Persistence diagram showing the birth-death pairs of a single ring.  A log scale is shown to separate the points on the graph.  A persistence diagram is a concise representation of all the information shown in Tables \ref{tab:pers2}, \ref{tab:pers}, \ref{UnionFind}.  These diagrams can be analyzed in bulk to find means, anomalies, a basis for Machine Learning and More!}
+\label{fig:alpha}
+\end{figure}
+
+\begin{center}
+\begin{table}
+\begin{tabular}{|c|c|c|}
+
+\hline
+ \includegraphics[scale=0.3]{Pers2_00} & \includegraphics[scale=0.3]{Pers2_01} & \includegraphics[scale=0.3]{Pers2_02} \\ \hline
+  \includegraphics[scale=0.3]{Pers2_12} & \includegraphics[scale=0.3]{Pers2_13} & \includegraphics[scale=0.3]{Pers2_14} \\ \hline
+\end{tabular}
+\caption{As the filtration progresses, holes are filled, joining neighboring transactions into a larger simplex.  Only the first three and last three steps of the algorithm are shown, all of the structure during the intermediate heights is confined to the band on the right side, shown in greater detail in the next diagram. 
+In this particular ring, one of the transactions is far older than the others, requiring a large parameter for the height to join the tx with the other transactions.}
+\label{tab:pers2}
+\end{table}
+\end{center}
+
+\begin{center}
+\begin{table}
+\begin{tabular}{|c|c|c|}
+\hline
+ \includegraphics[scale=0.3]{Pers_00} & \includegraphics[scale=0.3]{Pers_01} & \includegraphics[scale=0.3]{Pers_02} \\ \hline
+  \includegraphics[scale=0.3]{Pers_03} & \includegraphics[scale=0.3]{Pers_04} & \includegraphics[scale=0.3]{Pers_05} \\ \hline
+ \includegraphics[scale=0.3]{Pers_06} & \includegraphics[scale=0.3]{Pers_07} & \includegraphics[scale=0.3]{Pers_08} \\ \hline
+ \includegraphics[scale=0.3]{Pers_09} & \includegraphics[scale=0.3]{Pers_10} & \includegraphics[scale=0.3]{Pers_11} \\ \hline
+  \includegraphics[scale=0.3]{Pers_12} & \includegraphics[scale=0.3]{Pers_13} & \includegraphics[scale=0.3]{Pers_14} \\ \hline
+\end{tabular}
+\caption{
+As the filtration progresses, holes are filled, joining neighboring transactions into a larger simplex.  The fine structure at the different orders of the filtration are evident as we have zoomed into just the right side of the previous diagram.}
+\label{tab:pers}
+\end{table}
+\end{center}
 
 
 \begin{center}
