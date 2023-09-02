@@ -7,6 +7,7 @@ import gtda
 from gtda import homology
 import pymc as pm
 import random
+import pandas as pd
 
 VR = homology.VietorisRipsPersistence(homology_dimensions=[0])
 
@@ -106,11 +107,13 @@ class ring:
                 #self.txo.sinks.append(j)
                 if j in registry:
                     registry[j].sources.append(self.txo.tx_hash)
+                    registry[self.txo.tx_hash].sinks.append(j)
                     mixins.append(registry[j])
                 else:
                     registry[j] = tx(j, registry=registry)
            
                     registry[j].sources.append(self.txo.tx_hash)
+                    registry[self.txo.tx_hash].sinks.append(j)
                     mixins.append(registry[j])
         
         return mixins

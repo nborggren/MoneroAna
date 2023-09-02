@@ -18,6 +18,13 @@ In practice we will simply call \textit{Giotto's} Vietoris-Rips functionality an
 For a given RingCT we'd like to be able to evaluate the likelihood subrings came from a decoy selection algorithm, find similar and comparable rings.  
 We can also develop summary statistics about the nature of these rings and representations appropriate for Machine Learning.   
 
+In \ref{fig:alpha} we show the persistence diagram of a single ring.  A log scale is shown to separate the points on the graph.  A persistence diagram is a concise representation of all the information shown in Tables \ref{tab:pers2}, \ref{tab:pers}, \ref{UnionFind}.
+
+Persistence diagrams are great at capturing structure at large scales.  In \ref{tab:pers2} we see large scale structures; this guides the search to just bands of interest we can ignore or at least postpone queries for intersections in a large number of blocks when these diagrams are compared.  We see as we zoom in at \ref{tab:pers}, the structure reappear as the filtration parameter is reduced.  
+
+Usual histograms have washed away a lot of this information, and require choices of bin widths that this process can circumvent (or guide).  
+
+
 \begin{figure}[h]
 \includegraphics[scale=0.5]{block_height}
 \caption{Persistence diagram showing the birth-death pairs of a single ring.  A log scale is shown to separate the points on the graph.  A persistence diagram is a concise representation of all the information shown in Tables \ref{tab:pers2}, \ref{tab:pers}, \ref{UnionFind}.  These diagrams can be analyzed in bulk to find means, anomalies, a basis for Machine Learning and More!}
